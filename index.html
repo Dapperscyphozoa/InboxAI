@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InboxAI - AI Email Assistant for Small Business</title>
+    <meta name="description" content="Save 3+ hours daily with AI-powered email responses. Let AI draft professional replies, you approve and send.">
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #fff;
+        }
+        
+        .nav {
+            background: #fff;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0066ff;
+        }
+        
+        .nav-cta {
+            background: #0066ff;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .nav-cta:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+        }
+        
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+        }
+        
+        .hero .highlight {
+            color: #0066ff;
+        }
+        
+        .hero p {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            padding: 18px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 102, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 102, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #0066ff;
+            padding: 18px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            border: 2px solid #0066ff;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: #f5f9ff;
+        }
+        
+        .trust-badges {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid #e5e5e5;
+        }
+        
+        .trust-text {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .badges {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .badge-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #00c853;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .problem {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+            padding: 80px 20px;
+        }
+        
+        .problem-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .problem h2 {
+            font-size: 42px;
+            margin-bottom: 24px;
+        }
+        
+        .problem p {
+            font-size: 20px;
+            opacity: 0.95;
+            line-height: 1.8;
+        }
+        
+        .pain-points {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        .pain-point {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .pain-point h3 {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .pain-point p {
+            font-size: 16px;
+        }
+        
+        .solution {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        
+        .solution h2 {
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #1a1a1a;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .feature {
+            padding: 32px;
+            border-radius: 16px;
+            border: 2px solid #e5e5e5;
+            transition: all 0.3s;
+        }
+        
+        .feature:hover {
+            border-color: #0066ff;
+            box-shadow: 0 8px 30px rgba(0, 102, 255, 0.15);
+            transform: translateY(-4px);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .feature h3 {
+            font-size: 22px;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+        
+        .feature p {
+            color: #666;
+            line-height: 1.7;
+        }
+        
+        .how-it-works {
+            background: #f8f9fa;
+            padding: 80px 20px;
+        }
+        
+        .how-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .how-container h2 {
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .steps {
+            display: grid;
+            gap: 32px;
+        }
+        
+        .step {
+            display: flex;
+            gap: 24px;
+            align-items: start;
+        }
+        
+        .step-number {
+            min-width: 50px;
+            height: 50px;
+            background: #0066ff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .step-content h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .step-content p {
+            color: #666;
+            font-size: 18px;
+        }
+        
+        .pricing {
+            max-width: 900px;
+            margin: 80px auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .pricing h2 {
+            font-size: 42px;
+            margin-bottom: 16px;
+        }
+        
+        .pricing-subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 60px;
+        }
+        
+        .pricing-card {
+            background: white;
+            border: 3px solid #0066ff;
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 10px 40px rgba(0, 102, 255, 0.2);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .price {
+            font-size: 64px;
+            font-weight: 700;
+            color: #0066ff;
+            margin-bottom: 8px;
+        }
+        
+        .price span {
+            font-size: 24px;
+            color: #666;
+        }
+        
+        .price-subtext {
+            color: #999;
+            margin-bottom: 32px;
+        }
+        
+        .included {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+        
+        .included-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        
+        .check {
+            width: 24px;
+            height: 24px;
+            background: #00c853;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .guarantee {
+            background: #f0f7ff;
+            padding: 40px 20px;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+        
+        .guarantee h3 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #0066ff;
+        }
+        
+        .guarantee p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .faq {
+            max-width: 800px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+        
+        .faq h2 {
+            font-size: 42px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 24px;
+        }
+        
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        
+        .faq-question {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+        
+        .faq-answer {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        
+        .final-cta {
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        .final-cta h2 {
+            font-size: 42px;
+            margin-bottom: 24px;
+        }
+        
+        .final-cta p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            opacity: 0.95;
+        }
+        
+        .footer {
+            background: #1a1a1a;
+            color: #999;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin-bottom: 16px;
+        }
+        
+        .footer a {
+            color: #0066ff;
+            text-decoration: none;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-content h3 {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-content p {
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #0066ff;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .problem h2, .solution h2, .pricing h2, .faq h2, .final-cta h2 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="logo">InboxAI</div>
+            <a href="#pricing" class="nav-cta">Start Free Trial</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Stop Drowning in Email.<br><span class="highlight">Let AI Handle It.</span></h1>
+        <p>AI reads your emails, drafts professional responses, you approve and send. Save 3+ hours daily.</p>
+        <div class="cta-buttons">
+            <button class="btn-primary" onclick="openCheckout()">Start 7-Day Free Trial</button>
+            <a href="#how-it-works" class="btn-secondary">See How It Works</a>
+        </div>
+        <div class="trust-badges">
+            <div class="trust-text">Trusted by Small Businesses</div>
+            <div class="badges">
+                <div class="badge">
+                    <div class="badge-icon">✓</div>
+                    <span>No Credit Card Required</span>
+                </div>
+                <div class="badge">
+                    <div class="badge-icon">✓</div>
+                    <span>Cancel Anytime</span>
+                </div>
+                <div class="badge">
+                    <div class="badge-icon">✓</div>
+                    <span>30-Day Money Back</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="problem">
+        <div class="problem-container">
+            <h2>Email is Killing Your Productivity</h2>
+            <p>You're not running your business. You're drowning in your inbox.</p>
+            <div class="pain-points">
+                <div class="pain-point">
+                    <h3>3.2hrs</h3>
+                    <p>Average time spent on email daily</p>
+                </div>
+                <div class="pain-point">
+                    <h3>121</h3>
+                    <p>Business emails received per day</p>
+                </div>
+                <div class="pain-point">
+                    <h3>$1,250</h3>
+                    <p>Cost of time wasted per month</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="solution">
+        <h2>InboxAI Does the Heavy Lifting</h2>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Reads Every Email</h3>
+                <p>Connects to your Gmail or Outlook. AI analyzes context, tone, and urgency automatically.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✍️</div>
+                <h3>Drafts Smart Responses</h3>
+                <p>Generates professional, contextual replies in your voice. Multiple options for every email.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✅</div>
+                <h3>You Approve & Send</h3>
+                <p>Review, edit if needed, and send with one click. Stay in control while saving hours.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>Response drafts generated in seconds. Turn hours of email work into minutes.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h3>Learns Your Style</h3>
+                <p>AI adapts to your communication patterns. Responses sound like you wrote them.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Bank-Level Security</h3>
+                <p>End-to-end encryption. Your emails stay private. SOC 2 compliant infrastructure.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+        <div class="how-container">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Connect Your Email</h3>
+                        <p>Link Gmail or Outlook in 30 seconds with secure OAuth. No passwords stored.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>AI Analyzes Incoming Mail</h3>
+                        <p>Every new email is read and understood by AI. Context, tone, and priority detected automatically.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Get Smart Draft Responses</h3>
+                        <p>See AI-generated replies in your dashboard. Multiple options for each email.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Review, Edit, Send</h3>
+                        <p>Approve as-is or make quick edits. Send with one click. Save 3+ hours daily.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <h2>Simple, Transparent Pricing</h2>
+        <p class="pricing-subtitle">One plan. Everything included. Cancel anytime.</p>
+        
+        <div class="pricing-card">
+            <div class="price">$49<span>/month</span></div>
+            <div class="price-subtext">Billed monthly • 7-day free trial</div>
+            
+            <div class="included">
+                <div class="included-item">
+                    <div class="check">✓</div>
+                    <span>Unlimited email responses</span>
+                </div>
+                <div class="included-item">
+                    <div class="check">✓</div>
+                    <span>Gmail & Outlook integration</span>
+                </div>
+                <div class="included-item">
+                    <div class="check">✓</div>
+                    <span>AI learns your writing style</span>
+                </div>
+                <div class="included-item">
+                    <div class="check">✓</div>
+                    <span>Priority support</span>
+                </div>
+                <div class="included-item">
+                    <div class="check">✓</div>
+                    <span>Bank-level security</span>
+                </div>
+                <div class="included-item">
+                    <div class="check">✓</div>
+                    <span>Cancel anytime</span>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="openCheckout()" style="width: 100%;">Start Free Trial</button>
+            
+            <div class="guarantee">
+                <h3>💯 30-Day Money Back Guarantee</h3>
+                <p>Not saving time? Get a full refund within 30 days. No questions asked.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">How does the free trial work?</div>
+            <div class="faq-answer">7 days completely free. No credit card required to start. Full access to all features. Cancel anytime during trial with no charge.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Is my email data secure?</div>
+            <div class="faq-answer">Yes. We use bank-level encryption, OAuth authentication (never store passwords), and SOC 2 compliant infrastructure. Your emails are processed securely and never shared.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Which email providers work?</div>
+            <div class="faq-answer">Gmail and Outlook are fully supported. More integrations coming soon.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Can I customize the AI responses?</div>
+            <div class="faq-answer">Yes. The AI learns your writing style over time. You can also edit any draft before sending. You're always in full control.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">What if I don't like a response?</div>
+            <div class="faq-answer">Simply edit it or ask for a new draft. The AI generates multiple options. You approve before anything is sent.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Can I cancel anytime?</div>
+            <div class="faq-answer">Absolutely. Cancel with one click from your account settings. No contracts, no commitments.</div>
+        </div>
+    </section>
+
+    <section class="final-cta">
+        <h2>Ready to Reclaim Your Time?</h2>
+        <p>Join small business owners saving 3+ hours daily with AI email assistance.</p>
+        <button class="btn-primary" onclick="openCheckout()" style="background: white; color: #0066ff;">Start Your Free Trial</button>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 InboxAI. All rights reserved.</p>
+        <p><a href="#privacy">Privacy Policy</a> • <a href="#terms">Terms of Service</a> • <a href="#contact">Contact</a></p>
+    </footer>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content" style="position: relative;">
+            <button class="close-modal" onclick="closeCheckout()">&times;</button>
+            <h3>Start Your 7-Day Free Trial</h3>
+            <p>No credit card required. Full access to all features.</p>
+            
+            <form id="emailForm" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="you@company.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="John Smith">
+                </div>
+                
+                <div class="form-group">
+                    <label for="company">Company Name (Optional)</label>
+                    <input type="text" id="company" placeholder="Acme Inc">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%;">Continue to Setup →</button>
+            </form>
+            
+            <p style="font-size: 12px; color: #999; margin-top: 16px; text-align: center;">
+                By signing up, you agree to our Terms of Service and Privacy Policy
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openCheckout() {
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+        
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+        
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('name').value;
+            const company = document.getElementById('company').value;
+            
+            // Show loading
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Call Stripe checkout API
+                const response = await fetch('/api/create-checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, name, company })
+                });
+                
+                const data = await response.json();
+                
+                if (data.url) {
+                    // Redirect to Stripe checkout
+                    window.location.href = data.url;
+                } else {
+                    throw new Error('No checkout URL returned');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Error starting checkout. Please try again.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('checkoutModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCheckout();
+            }
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
